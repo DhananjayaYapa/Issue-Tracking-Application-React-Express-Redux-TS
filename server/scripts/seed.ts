@@ -1,17 +1,3 @@
-/**
- * Idempotent database seed.
- * Safe to run multiple times — uses ON DUPLICATE KEY UPDATE for all rows.
- *
- * Usage:
- *   npm run seed
- *
- * Environment variables read:
- *   DATABASE_URL   — required
- *   ADMIN_NAME     — admin display name     (default: Admin)
- *   ADMIN_EMAIL    — admin account email    (default: admin@issuetracker.com)
- *   ADMIN_PASSWORD — admin initial password (default: Admin@123)
- */
-
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import type { RowDataPacket } from "mysql2";
@@ -19,11 +5,7 @@ import { db, pool } from "../src/config/db.js";
 import logger from "../src/config/logger.js";
 import { issueStatuses, issuePriorities, users } from "../src/db/schema.js";
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-
 const SALT_ROUNDS = 10;
-
-// ─── Seed Data ───────────────────────────────────────────────────────────────
 
 const STATUSES = [
   { id: 1, name: "Open", displayOrder: 1, isTerminal: false },
@@ -39,13 +21,11 @@ const PRIORITIES = [
   { id: 4, name: "Critical", level: 4 },
 ] as const;
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function seed() {
   logger.info("Starting database seed...");
 
-  // ── 1. Issue Statuses ───────────────────────────────────────────────────
-
+  //Issue Statuses
   logger.info("Seeding issue statuses...");
   for (const status of STATUSES) {
     await db
@@ -61,8 +41,7 @@ async function seed() {
   }
   logger.info(`  ✓ ${STATUSES.length} statuses upserted`);
 
-  // ── 2. Issue Priorities ─────────────────────────────────────────────────
-
+  // Issue Priorities
   logger.info("Seeding issue priorities...");
   for (const priority of PRIORITIES) {
     await db
@@ -77,8 +56,7 @@ async function seed() {
   }
   logger.info(`  ✓ ${PRIORITIES.length} priorities upserted`);
 
-  // ── 3. Admin User ───────────────────────────────────────────────────────
-
+  // Admin User
   logger.info("Seeding admin user...");
   const adminName = process.env.ADMIN_NAME ?? "Admin";
   const adminEmail = process.env.ADMIN_EMAIL ?? "admin@gmail.com";
@@ -96,8 +74,6 @@ async function seed() {
       isEnabled: true,
     })
     .onDuplicateKeyUpdate({
-      // On re-run: update name/role/isEnabled but NOT the password
-      // (admin may have changed it after first seed)
       set: {
         name: adminName,
         role: "ADMIN",
@@ -107,10 +83,7 @@ async function seed() {
 
   logger.info(`  ✓ Admin upserted: ${adminEmail}`);
 
-  // ── 4. FULLTEXT Index ───────────────────────────────────────────────────
-  // Drizzle's typed index builder only supports btree/hash — FULLTEXT must
-  // be created via raw SQL. This block is idempotent (ER_DUP_KEYNAME = 1061).
-
+  // FULLTEXT Index
   logger.info("Ensuring FULLTEXT index on issues(title, description)...");
   try {
     const [rows] = await pool.query<RowDataPacket[]>(
@@ -141,6 +114,6 @@ seed()
     process.exit(1);
   })
   .finally(() => {
-    // Close the connection pool so the process exits cleanly
+    // Close the connection pool
     void pool.end();
   });

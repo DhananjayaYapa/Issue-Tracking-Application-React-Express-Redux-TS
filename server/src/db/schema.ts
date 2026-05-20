@@ -11,10 +11,7 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core";
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Users
-// ─────────────────────────────────────────────────────────────────────────────
-
 export const users = mysqlTable(
   "users",
   {
@@ -22,7 +19,6 @@ export const users = mysqlTable(
     name: varchar("name", { length: 100 }).notNull(),
     email: varchar("email", { length: 255 }).notNull(),
     passwordHash: varchar("password_hash", { length: 255 }).notNull(),
-    // DB-enforced ENUM — no VARCHAR(10) with app-only validation
     role: mysqlEnum("role", ["ADMIN", "USER"]).notNull().default("USER"),
     isEnabled: boolean("is_enabled").notNull().default(true),
     createdAt: datetime("created_at", { fsp: 0 })
@@ -39,14 +35,7 @@ export const users = mysqlTable(
   ],
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Issue Statuses (lookup table)
-// Seeded: Open (order 1), In Progress (order 2), Resolved (order 3), Closed (order 4)
-//
-// displayOrder — consistent UI sort without relying on insertion order
-// isTerminal   — TRUE for Resolved/Closed; avoids hardcoded ID checks in code
-// ─────────────────────────────────────────────────────────────────────────────
-
+// Issue Statuses
 export const issueStatuses = mysqlTable(
   "issue_statuses",
   {
@@ -61,13 +50,7 @@ export const issueStatuses = mysqlTable(
   ],
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Issue Priorities (lookup table)
-// Seeded: Low (level 1), Medium (level 2), High (level 3), Critical (level 4)
-//
-// level — explicit numeric sort; fixes alphabetical bug (Critical < High < Low < Medium)
-// ─────────────────────────────────────────────────────────────────────────────
-
+// Issue Priorities
 export const issuePriorities = mysqlTable(
   "issue_priorities",
   {
@@ -81,15 +64,11 @@ export const issuePriorities = mysqlTable(
   ],
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Issues
-// ─────────────────────────────────────────────────────────────────────────────
-
 export const issues = mysqlTable(
   "issues",
   {
     id: int("id").autoincrement().primaryKey(),
-    // VARCHAR(100) — aligned with actual 100-char validation (was 255 in DB vs 50 in code)
     title: varchar("title", { length: 100 }).notNull(),
     description: text("description"),
     statusId: int("status_id")
@@ -112,7 +91,6 @@ export const issues = mysqlTable(
         onDelete: "restrict",
         onUpdate: "cascade",
       }),
-    // DATETIME — was DATE in original; preserves exact resolution time
     resolvedAt: datetime("resolved_at", { fsp: 0 }),
     createdAt: datetime("created_at", { fsp: 0 })
       .notNull()
@@ -128,23 +106,17 @@ export const issues = mysqlTable(
     index("idx_issues_priority_id").on(table.priorityId),
     index("idx_issues_created_by").on(table.createdBy),
     index("idx_issues_created_at").on(table.createdAt),
-    // Composite indexes for dominant query patterns
+    // Composite indexes
     index("idx_issues_created_by_status").on(table.createdBy, table.statusId),
     index("idx_issues_status_created_at").on(table.statusId, table.createdAt),
     index("idx_issues_created_by_created_at").on(
       table.createdBy,
       table.createdAt,
     ),
-    // NOTE: FULLTEXT index (title + description) is not supported by Drizzle's
-    // typed index builder (only 'btree'|'hash' are valid). It is created via
-    // raw SQL in scripts/seed.ts after db:push / db:migrate.
   ],
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Relations (used by Drizzle's relational query API)
-// ─────────────────────────────────────────────────────────────────────────────
-
+// Relations
 export const usersRelations = relations(users, ({ many }) => ({
   issues: many(issues),
 }));
@@ -174,10 +146,6 @@ export const issuesRelations = relations(issues, ({ one }) => ({
     references: [users.id],
   }),
 }));
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Exported types (inferred from schema — no manual type duplication)
-// ─────────────────────────────────────────────────────────────────────────────
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
