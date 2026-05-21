@@ -1,0 +1,699 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Issue Tracker API",
+    "version": "2.0.0",
+    "description": "RESTful API for Issue Tracking Application. Manage issues, users, and reports.",
+    "contact": { "name": "API Support" }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your JWT token"
+      }
+    },
+    "schemas": {
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "type": "object", "nullable": true },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "message": { "type": "string" },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": { "type": "string" },
+                "message": { "type": "string" }
+              }
+            },
+            "nullable": true
+          },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      },
+      "PaginatedResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": { "type": "array", "items": { "type": "object" } },
+              "total": { "type": "integer" },
+              "page": { "type": "integer" },
+              "limit": { "type": "integer" },
+              "totalPages": { "type": "integer" }
+            }
+          },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "Auth", "description": "Authentication & registration" },
+    { "name": "Issues", "description": "Issue management" },
+    { "name": "Users", "description": "User management (Admin only)" },
+    { "name": "System", "description": "Health check" }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": ["System"],
+        "responses": { "200": { "description": "API is running" } }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 100,
+                    "example": "Jane Doe"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "jane@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "Secret1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User registered successfully" },
+          "409": { "description": "Email already registered" },
+          "422": { "description": "Validation error" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login and receive a JWT token",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "jane@example.com"
+                  },
+                  "password": { "type": "string", "example": "Secret1" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful" },
+          "401": { "description": "Invalid credentials" },
+          "422": { "description": "Validation error" }
+        }
+      }
+    },
+    "/auth/profile": {
+      "get": {
+        "summary": "Get authenticated user's profile",
+        "tags": ["Auth"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Profile retrieved successfully" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "User not found" }
+        }
+      },
+      "put": {
+        "summary": "Update authenticated user's profile",
+        "tags": ["Auth"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 100,
+                    "example": "Jane Smith"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Profile updated successfully" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Account disabled" },
+          "422": { "description": "Validation error" }
+        }
+      }
+    },
+    "/auth/change-password": {
+      "put": {
+        "summary": "Change authenticated user's password",
+        "tags": ["Auth"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["currentPassword", "newPassword"],
+                "properties": {
+                  "currentPassword": { "type": "string", "example": "Secret1" },
+                  "newPassword": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "NewSecret2"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Password changed successfully" },
+          "400": { "description": "Current password is incorrect" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Account disabled" }
+        }
+      }
+    },
+    "/issues/metadata": {
+      "get": {
+        "summary": "Get available statuses and priorities (for dropdowns)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Metadata retrieved successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/issues/stats/counts": {
+      "get": {
+        "summary": "Get issue counts grouped by status (admin — all issues)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Status counts retrieved successfully" },
+          "403": { "description": "Admin only" }
+        }
+      }
+    },
+    "/issues/my-stats/counts": {
+      "get": {
+        "summary": "Get authenticated user's issue counts grouped by status",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "User status counts retrieved successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/issues/export/csv": {
+      "get": {
+        "summary": "Export issues as CSV (USER scope limited to own issues)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "statusId",
+            "schema": { "type": "integer" }
+          },
+          {
+            "in": "query",
+            "name": "priorityId",
+            "schema": { "type": "integer" }
+          },
+          {
+            "in": "query",
+            "name": "createdBy",
+            "schema": { "type": "integer" },
+            "description": "Admin only"
+          },
+          {
+            "in": "query",
+            "name": "fromDate",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "in": "query",
+            "name": "toDate",
+            "schema": { "type": "string", "format": "date" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV file download",
+            "content": { "text/csv": { "schema": { "type": "string" } } }
+          },
+          "403": { "description": "Account disabled" }
+        }
+      }
+    },
+    "/issues/export/json": {
+      "get": {
+        "summary": "Export issues as JSON (USER scope limited to own issues)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "statusId",
+            "schema": { "type": "integer" }
+          },
+          {
+            "in": "query",
+            "name": "priorityId",
+            "schema": { "type": "integer" }
+          },
+          {
+            "in": "query",
+            "name": "createdBy",
+            "schema": { "type": "integer" },
+            "description": "Admin only"
+          },
+          {
+            "in": "query",
+            "name": "fromDate",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "in": "query",
+            "name": "toDate",
+            "schema": { "type": "string", "format": "date" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "JSON file download" },
+          "403": { "description": "Account disabled" }
+        }
+      }
+    },
+    "/issues/my-issues": {
+      "get": {
+        "summary": "Get paginated list of authenticated user's own issues",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "statusId",
+            "schema": { "type": "integer" }
+          },
+          {
+            "in": "query",
+            "name": "priorityId",
+            "schema": { "type": "integer" }
+          },
+          { "in": "query", "name": "search", "schema": { "type": "string" } },
+          {
+            "in": "query",
+            "name": "fromDate",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "in": "query",
+            "name": "toDate",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": "string",
+              "enum": ["createdAt", "updatedAt", "title"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortOrder",
+            "schema": { "type": "string", "enum": ["asc", "desc"] }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer", "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Paginated issues list" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/issues": {
+      "get": {
+        "summary": "Get paginated list of all issues (admin only)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "statusId",
+            "schema": { "type": "integer" }
+          },
+          {
+            "in": "query",
+            "name": "priorityId",
+            "schema": { "type": "integer" }
+          },
+          {
+            "in": "query",
+            "name": "createdBy",
+            "schema": { "type": "integer" }
+          },
+          { "in": "query", "name": "search", "schema": { "type": "string" } },
+          {
+            "in": "query",
+            "name": "fromDate",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "in": "query",
+            "name": "toDate",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": "string",
+              "enum": ["createdAt", "updatedAt", "title"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortOrder",
+            "schema": { "type": "string", "enum": ["asc", "desc"] }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer", "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Paginated issues list" },
+          "403": { "description": "Admin only" }
+        }
+      },
+      "post": {
+        "summary": "Create a new issue (status defaults to Open)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "priorityId"],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 100,
+                    "example": "Login page broken"
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 2000,
+                    "nullable": true,
+                    "example": "The login button does not respond on mobile."
+                  },
+                  "priorityId": { "type": "integer", "example": 2 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Issue created successfully" },
+          "403": { "description": "Account disabled" },
+          "422": { "description": "Validation error" }
+        }
+      }
+    },
+    "/issues/{id}": {
+      "get": {
+        "summary": "Get issue by ID (USER can only view their own)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Issue retrieved successfully" },
+          "403": { "description": "Not your issue" },
+          "404": { "description": "Issue not found" }
+        }
+      },
+      "put": {
+        "summary": "Update issue (USER limited to title/description/priority; ADMIN can also change status)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "description": { "type": "string", "nullable": true },
+                  "priorityId": { "type": "integer" },
+                  "statusId": { "type": "integer", "description": "Admin only" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Issue updated successfully" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Issue not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete issue (USER can only delete their own; ADMIN can delete any)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Issue deleted successfully" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Issue not found" }
+        }
+      }
+    },
+    "/issues/{id}/status": {
+      "patch": {
+        "summary": "Update issue status (admin only)",
+        "tags": ["Issues"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["statusId"],
+                "properties": {
+                  "statusId": { "type": "integer", "example": 2 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Issue status updated successfully" },
+          "403": { "description": "Admin only" },
+          "404": { "description": "Issue not found" }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Get all users (admin only)",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Users retrieved successfully" },
+          "403": { "description": "Admin only" }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get user by ID (admin only)",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "User retrieved successfully" },
+          "404": { "description": "User not found" }
+        }
+      },
+      "delete": {
+        "summary": "Permanently delete user and all their issues (admin only — cannot delete self or another admin)",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "User and related issues deleted" },
+          "400": { "description": "Cannot delete own account" },
+          "403": { "description": "Cannot delete another admin" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
+    "/users/{id}/enable": {
+      "patch": {
+        "summary": "Enable a disabled user (admin only)",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "User enabled successfully" },
+          "404": { "description": "User not found" },
+          "409": { "description": "User is already enabled" }
+        }
+      }
+    },
+    "/users/{id}/disable": {
+      "patch": {
+        "summary": "Disable an active user (admin only — cannot disable self or another admin)",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "User disabled successfully" },
+          "400": { "description": "Cannot disable own account" },
+          "403": { "description": "Cannot disable another admin" },
+          "404": { "description": "User not found" },
+          "409": { "description": "User is already disabled" }
+        }
+      }
+    }
+  }
+}
