@@ -1,6 +1,6 @@
 {
     "name": "issue-tracker-api",
-    "version": "2.0.0",
+    "version": "1.0.0",
     "description": "RESTful API for Issue Tracking Application — TypeScript + Drizzle ORM + MySQL",
     "type": "module",
     "main": "dist/server.js",
