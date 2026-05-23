@@ -1,0 +1,19 @@
+.drawerContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  min-height: 64px;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

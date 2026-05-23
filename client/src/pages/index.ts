@@ -1,0 +1,9 @@
+export { default as AuthPage } from "./AuthPage/AuthPage";
+export { default as Dashboard } from "./Dashboard/Dashboard";
+export { default as IssueReport } from "./IssueReport/IssueReport";
+export { default as Issues } from "./Issues/Issues";
+export { default as Login } from "./Login/Login";
+export { default as MyIssues } from "./MyIssues/MyIssues";
+export { default as Profile } from "./Profile/Profile";
+export { default as Register } from "./Register/Register";
+export { default as Users } from "./Users/Users";
