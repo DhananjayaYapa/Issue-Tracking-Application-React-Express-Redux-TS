@@ -1,0 +1,366 @@
+/* =============================================
+   Base CSS - Reset and Flexbox Utilities
+   ============================================= */
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 1em;
+  background-color: rgba(50, 50, 50, 0.3);
+}
+
+/* Box Sizing Reset */
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* HTML/Body */
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-smooth: always;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+img {
+  vertical-align: top;
+  max-width: 100%;
+}
+
+/* =============================================
+   Container Widths
+   ============================================= */
+
+.wrap480 {
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.wrap600 {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.wrap768 {
+  max-width: 768px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.wrap900 {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.wrap1000 {
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.wrap1100 {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.wrap1200 {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.wrap1400 {
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* =============================================
+   Flexbox Layout System
+   ============================================= */
+
+.layout-row {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+.layout-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-wrap {
+  flex-wrap: wrap;
+}
+
+.layout-fill {
+  max-height: 100%;
+  height: 100%;
+  width: 100%;
+}
+
+/* Alignment */
+.layout-align-center {
+  justify-content: center;
+}
+
+.layout-align-space-between {
+  justify-content: space-between;
+}
+
+.layout-align-end {
+  justify-content: flex-end;
+}
+
+.layout-align-start {
+  align-items: flex-start;
+}
+
+.layout-align-stretch {
+  align-items: stretch;
+}
+
+[class*=" layout-align-"].center,
+[class^="layout-align-"].center {
+  align-items: center;
+}
+
+[class*=" layout-align-"].end,
+[class^="layout-align-"].end {
+  align-items: flex-end;
+}
+
+/* Flex sizing */
+.flex-20 {
+  flex: 1 1 20%;
+  max-width: 20%;
+}
+
+.flex-25 {
+  flex: 1 1 25%;
+  max-width: 25%;
+}
+
+.flex-30 {
+  flex: 1 1 30%;
+  max-width: 30%;
+}
+
+.flex-33 {
+  flex: 1 1 33.333%;
+  max-width: 33.333%;
+}
+
+.flex-40 {
+  flex: 1 1 40%;
+  max-width: 40%;
+}
+
+.flex-50 {
+  flex: 1 1 50%;
+  max-width: 50%;
+}
+
+.flex-60 {
+  flex: 1 1 60%;
+  max-width: 60%;
+}
+
+.flex-66 {
+  flex: 1 1 66.666%;
+  max-width: 66.666%;
+}
+
+.flex-75 {
+  flex: 1 1 75%;
+  max-width: 75%;
+}
+
+.flex-80 {
+  flex: 1 1 80%;
+  max-width: 80%;
+}
+
+.flex-100 {
+  flex: 1;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* =============================================
+   Spacing Utilities
+   ============================================= */
+
+.layout-margin > * {
+  margin: 8px;
+}
+
+/* Padding */
+.content-padding {
+  padding: 16px;
+}
+
+.content-padding.sm {
+  padding: 8px;
+}
+
+.content-padding.lg {
+  padding: 24px;
+}
+
+.content-padding.xl {
+  padding: 36px;
+}
+
+/* Spacers */
+.layout-spacer {
+  padding: 0 16px;
+}
+
+.layout-spacer.sm {
+  padding: 0 8px;
+}
+
+.layout-spacer.lg {
+  padding: 0 24px;
+}
+
+/* =============================================
+   Responsive Classes
+   ============================================= */
+
+/* Desktop visibility */
+.layout-m-hide {
+  display: block;
+}
+
+.layout-m-show {
+  display: none;
+}
+
+/* Tablet (max-width: 768px) */
+@media all and (max-width: 768px) {
+  .layout-m-hide {
+    display: none !important;
+  }
+
+  .layout-m-show {
+    display: block;
+  }
+
+  .layout-m-column {
+    flex-direction: column;
+  }
+
+  .layout-m-flex-100 {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .layout-m-text-center {
+    text-align: center !important;
+  }
+}
+
+/* Mobile (max-width: 540px) */
+@media all and (max-width: 540px) {
+  .layout-xs-hide {
+    display: none !important;
+  }
+
+  .layout-xs-show {
+    display: block;
+  }
+
+  .layout-xs-column {
+    flex-direction: column;
+  }
+
+  .layout-xs-flex-100 {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .layout-xs-text-center {
+    text-align: center !important;
+  }
+
+  .content-padding {
+    padding: 8px;
+  }
+
+  .content-padding.lg {
+    padding: 16px;
+  }
+}
+
+/* Large screens (max-width: 1024px) */
+@media all and (max-width: 1024px) {
+  .layout-lg-hide {
+    display: none !important;
+  }
+
+  .layout-lg-show {
+    display: block;
+  }
+
+  .layout-lg-column {
+    flex-direction: column;
+  }
+
+  .layout-lg-flex-100 {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* XL screens (max-width: 1280px) */
+@media all and (max-width: 1280px) {
+  .layout-xl-hide {
+    display: none !important;
+  }
+
+  .layout-xl-show {
+    display: block;
+  }
+
+  .layout-xl-column {
+    flex-direction: column;
+  }
+
+  .layout-xl-flex-100 {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}

@@ -1,0 +1,418 @@
+@use "sass:color";
+@use "./constants.scss" as *;
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
+
+// =============================================
+// Global Styles - Main SCSS
+// =============================================
+
+body {
+  margin: 0;
+  font-family: $primaryFont;
+  font-size: $primaryFontSize;
+  background-color: $bgSecondary;
+  color: $black;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  font-family: $primaryFont;
+  margin: 0;
+}
+
+a {
+  color: $primary;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// =============================================
+// Typography Utilities
+// =============================================
+
+.f-48 {
+  font-size: 48px;
+}
+
+.f-32 {
+  font-size: 32px;
+}
+
+.f-24 {
+  font-size: 24px;
+}
+
+.f-20 {
+  font-size: 20px;
+}
+
+.f-16 {
+  font-size: 16px;
+}
+
+.f-14 {
+  font-size: 14px;
+}
+
+.f-12 {
+  font-size: 12px;
+}
+
+.font-light {
+  font-weight: 300;
+}
+
+.font-regular {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-primary {
+  color: $primary;
+}
+
+.text-secondary {
+  color: $secondary;
+}
+
+.text-success {
+  color: $success;
+}
+
+.text-warning {
+  color: $warning;
+}
+
+.text-error {
+  color: $error;
+}
+
+.text-gray {
+  color: $gray;
+}
+
+// =============================================
+// Utility Classes
+// =============================================
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.cursor-disabled {
+  cursor: not-allowed !important;
+}
+
+.truncate {
+  @include truncate;
+}
+
+// Margins
+.m-0 {
+  margin: 0;
+}
+
+.mt-0 {
+  margin-top: 0;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.ml-0 {
+  margin-left: 0;
+}
+
+.mr-0 {
+  margin-right: 0;
+}
+
+.mt-xs {
+  margin-top: $spacingXs;
+}
+
+.mt-sm {
+  margin-top: $spacingSm;
+}
+
+.mt-md {
+  margin-top: $spacingMd;
+}
+
+.mt-lg {
+  margin-top: $spacingLg;
+}
+
+.mt-xl {
+  margin-top: $spacingXl;
+}
+
+.mb-xs {
+  margin-bottom: $spacingXs;
+}
+
+.mb-sm {
+  margin-bottom: $spacingSm;
+}
+
+.mb-md {
+  margin-bottom: $spacingMd;
+}
+
+.mb-lg {
+  margin-bottom: $spacingLg;
+}
+
+.mb-xl {
+  margin-bottom: $spacingXl;
+}
+
+// Paddings
+.p-0 {
+  padding: 0;
+}
+
+.p-xs {
+  padding: $spacingXs;
+}
+
+.p-sm {
+  padding: $spacingSm;
+}
+
+.p-md {
+  padding: $spacingMd;
+}
+
+.p-lg {
+  padding: $spacingLg;
+}
+
+.p-xl {
+  padding: $spacingXl;
+}
+
+// =============================================
+// Layout Utilities
+// =============================================
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-center {
+  @include flexCenter;
+}
+
+.flex-between {
+  @include flexBetween;
+}
+
+.flex-start {
+  justify-content: flex-start;
+}
+
+.flex-end {
+  justify-content: flex-end;
+}
+
+.align-start {
+  align-items: flex-start;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-end {
+  align-items: flex-end;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.h-100 {
+  height: 100%;
+}
+
+// =============================================
+// Card Styles
+// =============================================
+
+.card {
+  background: $white;
+  border-radius: $borderRadiusMd;
+  box-shadow: $shadowSm;
+  padding: $spacingMd;
+}
+
+.card-hover {
+  @include transition;
+
+  &:hover {
+    box-shadow: $shadowMd;
+    transform: translateY(-2px);
+  }
+}
+
+// =============================================
+// Section Titles
+// =============================================
+
+.section-title {
+  h2,
+  h3 {
+    font-size: 20px;
+    margin: 0;
+    padding-bottom: 4px;
+  }
+
+  p {
+    margin: 0 0 $spacingSm;
+    color: $gray;
+  }
+}
+
+// =============================================
+// Status Chips (Issue Tracker Specific)
+// =============================================
+
+.status-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: $borderRadiusSm;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+
+  &.open {
+    border: 1px solid rgba($info, 0.5);
+    background: rgba($info, 0.1);
+    color: $info;
+  }
+
+  &.in-progress {
+    border: 1px solid rgba($warning, 0.5);
+    background: rgba($warning, 0.1);
+    color: color.adjust($warning, $lightness: -10%);
+  }
+
+  &.resolved {
+    border: 1px solid rgba($success, 0.5);
+    background: rgba($success, 0.1);
+    color: $success;
+  }
+
+  &.closed {
+    border: 1px solid rgba($gray, 0.5);
+    background: rgba($gray, 0.1);
+    color: $gray;
+  }
+}
+
+// =============================================
+// Priority Badges
+// =============================================
+
+.priority-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: $borderRadiusSm;
+  font-size: 11px;
+  font-weight: 500;
+
+  &.low {
+    background: rgba($success, 0.15);
+    color: color.adjust($success, $lightness: -10%);
+  }
+
+  &.medium {
+    background: rgba($warning, 0.15);
+    color: color.adjust($warning, $lightness: -15%);
+  }
+
+  &.high {
+    background: rgba($error, 0.15);
+    color: $error;
+  }
+
+  &.critical {
+    background: $error;
+    color: $white;
+  }
+}
+
+// =============================================
+// MUI Overrides
+// =============================================
+
+.MuiAlert-root {
+  padding: 4px 16px !important;
+}
+
+// =============================================
+// Scrollbar Styling
+// =============================================
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
