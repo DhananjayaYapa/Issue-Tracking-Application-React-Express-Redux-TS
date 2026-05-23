@@ -31,6 +31,7 @@ import { ConfirmationDialog, LoadingOverlay, PageHeader } from "../../components
 import { formatDate } from "../../utilities/helpers/commonFunctions";
 import { APP_TABLE_CONFIG, USER_ROLES } from "../../utilities/constants";
 import { paginationSx, StyledTableCell, StyledTableRow } from "../../assets/theme/theme";
+import { useDebounce } from "../../hooks";
 
 const Users: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -48,9 +49,11 @@ const Users: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
 
+  const debouncedSearch = useDebounce(searchInput, 300);
+
   const filteredUsers = users.filter((user) => {
-    if (!searchInput.trim()) return true;
-    const searchTerm = searchInput.trim().toLowerCase();
+    if (!debouncedSearch.trim()) return true;
+    const searchTerm = debouncedSearch.trim().toLowerCase();
     return (
       user.name.toLowerCase().includes(searchTerm) ||
       user.email.toLowerCase().includes(searchTerm) ||
@@ -61,6 +64,10 @@ const Users: React.FC = () => {
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch]);
 
   const paginatedData = filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -144,7 +151,7 @@ const Users: React.FC = () => {
                   <StyledTableRow>
                     <StyledTableCell colSpan={6} align="center">
                       <Typography color="text.secondary" sx={{ py: 4 }}>
-                        {searchInput ? "No users match your search" : "No users found"}
+                        {debouncedSearch ? "No users match your search" : "No users found"}
                       </Typography>
                     </StyledTableCell>
                   </StyledTableRow>
