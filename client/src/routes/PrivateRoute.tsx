@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+import { useAppDispatch, useAppSelector, type RootState } from "../redux/store";
 import { fetchProfile } from "../redux/thunks";
 import { APP_ROUTES } from "../utilities/constants";
 
@@ -15,9 +15,9 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
 }) => {
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user } = useAppSelector((state: RootState) => state.auth);
 
-  // Re-hydrate user profile on page refresh
+  // Re-hydrate user profile on page refresh (token present but state is empty)
   useEffect(() => {
     if (isAuthenticated && !user) {
       dispatch(fetchProfile());

@@ -1,7 +1,7 @@
-import type { AppDispatch } from "@redux/store";
-import { alertActions } from "@redux/slices";
-import { ALERT_CONFIGS } from "@utilities/constants";
-import type { AlertDto } from "@utilities/models";
+import type { AppDispatch } from "../../redux/store";
+import { alertActions } from "../../redux/slices";
+import { ALERT_CONFIGS } from "../constants";
+import type { AlertDto } from "../models";
 
 export const dispatchAlert = (
   dispatch: AppDispatch,
