@@ -15,17 +15,37 @@ import type {
   IssueFiltersDto,
   CreateIssuePayload,
   IssueFormData,
+  UpdateIssuePayload,
 } from "../../utilities/models";
 import { PageHeader, ConfirmationDialog } from "../../components/shared";
-import { IssueTable, IssueFilters, IssueFormDialog, IssueDetailDialog } from "../../components/issues";
+import {
+  IssueTable,
+  IssueFilters,
+  IssueFormDialog,
+  IssueDetailDialog,
+} from "../../components/issues";
 import styles from "./MyIssues.module.scss";
 import { validateFormData } from "../../utilities/helpers/formValidator";
 import { APP_TABLE_CONFIG } from "../../utilities/constants";
 import { paginationSx } from "../../assets/theme/theme";
 
 const ISSUE_INITIAL_STATE: IssueFormData = {
-  title: { value: "", validator: "text", isRequired: true, minLength: 3, maxLength: 100, error: null },
-  description: { value: "", validator: "text", isRequired: true, minLength: 3, maxLength: 500, error: null },
+  title: {
+    value: "",
+    validator: "text",
+    isRequired: true,
+    minLength: 3,
+    maxLength: 100,
+    error: null,
+  },
+  description: {
+    value: "",
+    validator: "text",
+    isRequired: true,
+    minLength: 3,
+    maxLength: 500,
+    error: null,
+  },
   statusId: { value: 1, validator: "number", isRequired: true, error: null },
   priorityId: { value: 2, validator: "number", isRequired: true, error: null },
 };
@@ -42,22 +62,29 @@ const MyIssues: React.FC = () => {
 
   const isUserDisabled = currentUser?.isEnabled === false;
 
-  const [pendingFilters, setPendingFilters] = useState<IssueFiltersDto>(INITIAL_FILTERS_STATE);
+  const [pendingFilters, setPendingFilters] = useState<IssueFiltersDto>(
+    INITIAL_FILTERS_STATE,
+  );
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [appliedFilters, setAppliedFilters] = useState<IssueFiltersDto>(INITIAL_FILTERS_STATE);
+  const [appliedFilters, setAppliedFilters] = useState<IssueFiltersDto>(
+    INITIAL_FILTERS_STATE,
+  );
   const [appliedFromDate, setAppliedFromDate] = useState("");
   const [appliedToDate, setAppliedToDate] = useState("");
 
   const [formOpen, setFormOpen] = useState(false);
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null);
-  const [issueFormData, setIssueFormData] = useState<IssueFormData>(ISSUE_INITIAL_STATE);
+  const [issueFormData, setIssueFormData] =
+    useState<IssueFormData>(ISSUE_INITIAL_STATE);
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteIssueId, setDeleteIssueId] = useState<number | null>(null);
   const [showStatusIcons, setShowStatusIcons] = useState(false);
   const [showPriorityIcons, setShowPriorityIcons] = useState(false);
-  const [viewIssue, setViewIssue] = useState<(Issue & { attachment?: string | null }) | null>(null);
+  const [viewIssue, setViewIssue] = useState<
+    (Issue & { attachment?: string | null }) | null
+  >(null);
   const [searchInput, setSearchInput] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
@@ -71,12 +98,16 @@ const MyIssues: React.FC = () => {
     let match = true;
 
     if (pendingFilters.statusId && metadata?.statuses) {
-      const statusName = metadata.statuses.find((s) => s.id === pendingFilters.statusId)?.name;
+      const statusName = metadata.statuses.find(
+        (s) => s.id === pendingFilters.statusId,
+      )?.name;
       if (statusName && issue.status !== statusName) match = false;
     }
 
     if (pendingFilters.priorityId && metadata?.priorities) {
-      const priorityName = metadata.priorities.find((p) => p.id === pendingFilters.priorityId)?.name;
+      const priorityName = metadata.priorities.find(
+        (p) => p.id === pendingFilters.priorityId,
+      )?.name;
       if (priorityName && issue.priority !== priorityName) match = false;
     }
 
@@ -106,7 +137,10 @@ const MyIssues: React.FC = () => {
     return match;
   });
 
-  const paginatedData = filteredIssues.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedData = filteredIssues.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
 
   const handleApplyFilters = () => {
     setAppliedFilters({ ...pendingFilters });
@@ -125,7 +159,10 @@ const MyIssues: React.FC = () => {
   };
 
   const handleFilterChange = (key: keyof IssueFiltersDto, value: string) => {
-    setPendingFilters((prev) => ({ ...prev, [key]: value ? Number(value) : undefined }));
+    setPendingFilters((prev) => ({
+      ...prev,
+      [key]: value ? Number(value) : undefined,
+    }));
   };
 
   const handleOpenCreate = () => {
@@ -136,13 +173,18 @@ const MyIssues: React.FC = () => {
   };
 
   const handleOpenEdit = (issue: Issue) => {
-    const statusId = metadata?.statuses.find((s) => s.name === issue.status)?.id || 1;
-    const priorityId = metadata?.priorities.find((p) => p.name === issue.priority)?.id || 2;
+    const statusId =
+      metadata?.statuses.find((s) => s.name === issue.status)?.id || 1;
+    const priorityId =
+      metadata?.priorities.find((p) => p.name === issue.priority)?.id || 2;
 
     setCurrentIssue(issue);
     setIssueFormData({
       title: { ...ISSUE_INITIAL_STATE.title, value: issue.title },
-      description: { ...ISSUE_INITIAL_STATE.description, value: issue.description || "" },
+      description: {
+        ...ISSUE_INITIAL_STATE.description,
+        value: issue.description || "",
+      },
       statusId: { ...ISSUE_INITIAL_STATE.statusId, value: statusId },
       priorityId: { ...ISSUE_INITIAL_STATE.priorityId, value: priorityId },
     });
@@ -156,17 +198,24 @@ const MyIssues: React.FC = () => {
 
     if (!isValid) return;
 
-    const payload: CreateIssuePayload = {
-      title: validatedData.title.value,
-      description: validatedData.description.value,
-      priorityId: Number(validatedData.priorityId.value),
-      statusId: Number(validatedData.statusId.value),
-    };
-
     if (currentIssue) {
-      dispatch(updateIssue({ id: currentIssue.id, ...payload }));
+      const updatePayload: UpdateIssuePayload = {
+        id: currentIssue.id,
+        title: validatedData.title.value,
+        description: validatedData.description.value,
+        priorityId: Number(validatedData.priorityId.value),
+      };
+
+      dispatch(updateIssue(updatePayload));
     } else {
-      dispatch(createIssue(payload));
+      const createPayload: CreateIssuePayload = {
+        title: validatedData.title.value,
+        description: validatedData.description.value,
+        priorityId: Number(validatedData.priorityId.value),
+      };
+
+      // New issues always start in Open status on server-v2.
+      dispatch(createIssue(createPayload));
     }
 
     setFormOpen(false);
@@ -177,16 +226,26 @@ const MyIssues: React.FC = () => {
 
   return (
     <Box className={styles.myIssuesPage}>
-      <PageHeader actionLabel="New Issue" actionIcon={<AddIcon />} onAction={handleOpenCreate} actionDisabled={isUserDisabled} />
+      <PageHeader
+        actionLabel="New Issue"
+        actionIcon={<AddIcon />}
+        onAction={handleOpenCreate}
+        actionDisabled={isUserDisabled}
+      />
 
       {isUserDisabled && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          Your account has been disabled. You cannot create, edit, or delete issues.
+          Your account has been disabled. You cannot create, edit, or delete
+          issues.
         </Alert>
       )}
 
       {alert?.message && (
-        <Alert severity={alert.severity ?? "info"} sx={{ mb: 2 }} onClose={() => dispatch(alertActions.clearAlert())}>
+        <Alert
+          severity={alert.severity ?? "info"}
+          sx={{ mb: 2 }}
+          onClose={() => dispatch(alertActions.clearAlert())}
+        >
           {alert.message}
         </Alert>
       )}
@@ -282,7 +341,11 @@ const MyIssues: React.FC = () => {
         onCancel={() => setDeleteDialogOpen(false)}
       />
 
-      <IssueDetailDialog open={!!viewIssue} onClose={() => setViewIssue(null)} issue={viewIssue} />
+      <IssueDetailDialog
+        open={!!viewIssue}
+        onClose={() => setViewIssue(null)}
+        issue={viewIssue}
+      />
     </Box>
   );
 };
