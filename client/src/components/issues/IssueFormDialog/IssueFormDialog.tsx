@@ -30,9 +30,6 @@ interface IssueFormDialogProps {
   onSave: () => void;
   loading: boolean;
   hideStatus?: boolean;
-  attachment?: File | null;
-  onAttachmentChange?: (file: File | null) => void;
-  existingAttachment?: string | null;
 }
 
 const IssueFormDialog: React.FC<IssueFormDialogProps> = ({
@@ -44,12 +41,8 @@ const IssueFormDialog: React.FC<IssueFormDialogProps> = ({
   onSave,
   loading,
   hideStatus = false,
-  attachment = null,
-  onAttachmentChange,
-  existingAttachment = null,
 }) => {
   const metadata = useAppSelector((state) => state.issues.metadata);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,54 +113,6 @@ const IssueFormDialog: React.FC<IssueFormDialogProps> = ({
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Box sx={{ border: "1px dashed", borderColor: "divider", borderRadius: 1, p: 2 }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Attachment
-                </Typography>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  hidden
-                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    onAttachmentChange?.(file);
-                  }}
-                />
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<AttachFileIcon />}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {attachment || existingAttachment ? "Change File" : "Attach File"}
-                </Button>
-                {attachment && (
-                  <Chip
-                    label={attachment.name}
-                    size="small"
-                    onDelete={() => {
-                      onAttachmentChange?.(null);
-                      if (fileInputRef.current) fileInputRef.current.value = "";
-                    }}
-                    sx={{ ml: 1 }}
-                  />
-                )}
-                {!attachment && existingAttachment && (
-                  <Chip
-                    label={existingAttachment.split("/").pop()}
-                    size="small"
-                    variant="outlined"
-                    sx={{ ml: 1 }}
-                  />
-                )}
-                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
-                  Max 5MB. Allowed: Images, PDF, DOC, DOCX, XLS, XLSX, TXT, CSV
-                </Typography>
-              </Box>
             </Grid>
           </Grid>
         </DialogContent>

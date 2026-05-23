@@ -28,6 +28,7 @@ import styles from "./MyIssues.module.scss";
 import { validateFormData } from "../../utilities/helpers/formValidator";
 import { APP_TABLE_CONFIG } from "../../utilities/constants";
 import { paginationSx } from "../../assets/theme/theme";
+import { useDebounce } from "../../hooks";
 
 const ISSUE_INITIAL_STATE: IssueFormData = {
   title: {
@@ -77,7 +78,6 @@ const MyIssues: React.FC = () => {
   const [currentIssue, setCurrentIssue] = useState<Issue | null>(null);
   const [issueFormData, setIssueFormData] =
     useState<IssueFormData>(ISSUE_INITIAL_STATE);
-  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteIssueId, setDeleteIssueId] = useState<number | null>(null);
   const [showStatusIcons, setShowStatusIcons] = useState(false);
@@ -89,10 +89,16 @@ const MyIssues: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
 
+  const debouncedSearch = useDebounce(searchInput, 300);
+
   useEffect(() => {
     dispatch(fetchMyIssues({ filters: appliedFilters }));
     dispatch(fetchMetadata());
   }, [dispatch, appliedFilters]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch]);
 
   const filteredIssues = issues.filter((issue) => {
     let match = true;
@@ -123,8 +129,8 @@ const MyIssues: React.FC = () => {
       if (issueDate > end) match = false;
     }
 
-    if (searchInput.trim()) {
-      const searchTerm = searchInput.trim().toLowerCase();
+    if (debouncedSearch.trim()) {
+      const searchTerm = debouncedSearch.trim().toLowerCase();
       const searchMatch =
         issue.title.toLowerCase().includes(searchTerm) ||
         issue.description?.toLowerCase().includes(searchTerm) ||
@@ -168,7 +174,6 @@ const MyIssues: React.FC = () => {
   const handleOpenCreate = () => {
     setCurrentIssue(null);
     setIssueFormData(ISSUE_INITIAL_STATE);
-    setAttachmentFile(null);
     setFormOpen(true);
   };
 
@@ -188,7 +193,6 @@ const MyIssues: React.FC = () => {
       statusId: { ...ISSUE_INITIAL_STATE.statusId, value: statusId },
       priorityId: { ...ISSUE_INITIAL_STATE.priorityId, value: priorityId },
     });
-    setAttachmentFile(null);
     setFormOpen(true);
   };
 
@@ -221,7 +225,6 @@ const MyIssues: React.FC = () => {
     setFormOpen(false);
     setCurrentIssue(null);
     setIssueFormData(ISSUE_INITIAL_STATE);
-    setAttachmentFile(null);
   };
 
   return (
@@ -320,9 +323,6 @@ const MyIssues: React.FC = () => {
         onSave={handleSaveIssue}
         loading={isLoading}
         hideStatus
-        attachment={attachmentFile}
-        onAttachmentChange={setAttachmentFile}
-        existingAttachment={null}
       />
 
       <ConfirmationDialog

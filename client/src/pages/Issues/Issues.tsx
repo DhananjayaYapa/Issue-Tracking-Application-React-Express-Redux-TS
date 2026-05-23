@@ -15,6 +15,7 @@ import { userService } from "../../services";
 import styles from "./Issues.module.scss";
 import { APP_TABLE_CONFIG } from "../../utilities/constants";
 import { paginationSx } from "../../assets/theme/theme";
+import { useDebounce } from "../../hooks";
 
 const INITIAL_FILTERS_STATE: IssueFiltersDto = {};
 
@@ -51,11 +52,13 @@ const Issues: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
 
+  const debouncedSearch = useDebounce(searchInput, 300);
+
   const metadata = issueState.metadata;
 
   const filteredIssues = issues.filter((issue) => {
-    if (!searchInput.trim()) return true;
-    const searchTerm = searchInput.trim().toLowerCase();
+    if (!debouncedSearch.trim()) return true;
+    const searchTerm = debouncedSearch.trim().toLowerCase();
     return (
       issue.title.toLowerCase().includes(searchTerm) ||
       issue.description?.toLowerCase().includes(searchTerm) ||
@@ -74,6 +77,10 @@ const Issues: React.FC = () => {
       setUsers(normalizeUsersPayload(res.data.data));
     });
   }, [dispatch, appliedFilters]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch]);
 
   const userOptions = users
     .map((u) => ({ value: String(u.id), label: u.name }))
