@@ -38,13 +38,6 @@ const DetailRow: React.FC<{ label: string; children: React.ReactNode }> = ({ lab
 const IssueDetailDialog: React.FC<IssueDetailDialogProps> = ({ open, onClose, issue }) => {
   if (!issue) return null;
 
-  const backendBaseUrl = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/api\/v1$/, "");
-
-  const getAttachmentUrl = (attachment: string) => {
-    const cleanPath = attachment.replace(/^\/+/, "");
-    return `${backendBaseUrl}/${cleanPath}`;
-  };
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -92,36 +85,6 @@ const IssueDetailDialog: React.FC<IssueDetailDialogProps> = ({ open, onClose, is
             <Typography variant="body2">{formatDate(issue.resolvedAt)}</Typography>
           </DetailRow>
         )}
-
-        <DetailRow label="Attachment">
-          {issue.attachment ? (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Link
-                href={getAttachmentUrl(issue.attachment)}
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}
-              >
-                <AttachFileIcon fontSize="small" />
-                {issue.attachment.split("/").pop()}
-              </Link>
-              <IconButton
-                size="small"
-                color="primary"
-                component="a"
-                href={getAttachmentUrl(issue.attachment)}
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-                title="Download"
-              >
-                <DownloadIcon fontSize="small" />
-              </IconButton>
-            </Box>
-          ) : (
-            <Typography variant="body2">-</Typography>
-          )}
-        </DetailRow>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Close</Button>
