@@ -8,7 +8,7 @@ import {
 class UserController {
   // Get All Users
   static async getAllUsers(
-    req: Request,
+    _: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {

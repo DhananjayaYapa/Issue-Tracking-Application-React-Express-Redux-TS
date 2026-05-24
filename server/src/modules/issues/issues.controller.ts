@@ -12,7 +12,7 @@ import {
 
 class IssueController {
   static async getMetadata(
-    req: Request,
+    _: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -26,7 +26,7 @@ class IssueController {
 
   // Status Counts (admin — all issues)
   static async getStatusCounts(
-    req: Request,
+    _: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
