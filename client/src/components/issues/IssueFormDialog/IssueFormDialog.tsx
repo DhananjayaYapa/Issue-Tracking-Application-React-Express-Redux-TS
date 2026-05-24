@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import {
   Dialog,
   DialogTitle,
@@ -12,11 +12,7 @@ import {
   MenuItem,
   Grid,
   CircularProgress,
-  Box,
-  Typography,
-  Chip,
 } from "@mui/material";
-import { AttachFile as AttachFileIcon } from "@mui/icons-material";
 import type { SelectChangeEvent } from "@mui/material";
 import { useAppSelector } from "../../../redux/store";
 import type { IssueFormData } from "../../../utilities/models";
