@@ -8,13 +8,10 @@ import {
   Typography,
   Box,
   Divider,
-  Link,
   IconButton,
 } from "@mui/material";
 import {
   Close as CloseIcon,
-  AttachFile as AttachFileIcon,
-  Download as DownloadIcon,
 } from "@mui/icons-material";
 import { StatusChip } from "../../shared";
 import type { Issue } from "../../../utilities/models";
